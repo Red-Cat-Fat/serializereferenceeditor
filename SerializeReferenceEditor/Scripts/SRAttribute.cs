@@ -86,12 +86,27 @@ public class SRAttribute : PropertyAttribute
 
 		if(type.IsInterface)
 		{
-			result = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => p != type && type.IsAssignableFrom(p)).ToArray();
+			result = AppDomain
+				.CurrentDomain
+				.GetAssemblies()
+				.SelectMany(s => s.GetTypes())
+				.Where(p => p != type 
+				            && type.IsAssignableFrom(p) 
+				            && !p.ContainsGenericParameters 
+				            && !p.IsAbstract 
+				            && !p.IsSubclassOf(typeof(Object)))
+				.ToArray();
 		}
 		else
 		{
-			result = Assembly.GetAssembly(type).GetTypes().Where(t => t.IsSubclassOf(type)).ToArray();
-
+			result = Assembly
+				.GetAssembly(type)
+				.GetTypes()
+				.Where(t => t.IsSubclassOf(type) 
+				            && !t.ContainsGenericParameters 
+				            && !t.IsAbstract 
+				            && !t.IsSubclassOf(typeof(Object)))
+				.ToArray();
 		}
 
 		if(result != null)
